@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CAA OMAN | OOSA Creative Operations Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Aviation Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --navy: #1d2551; --olive: #7b8b3e; --red: #d9534f; --gold: #c5a059; --bg: #f0f2f5; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; color: var(--navy); }
+        
+        header { background: var(--navy); color: white; padding: 20px 40px; border-bottom: 6px solid var(--olive); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .utc-clock { font-family: 'Courier New', monospace; font-size: 1.8rem; color: var(--gold); font-weight: bold; }
+
+        .dashboard-container { display: grid; grid-template-columns: 1fr 450px; gap: 25px; padding: 25px; max-width: 1600px; margin: auto; }
+
+        /* CREATIVE NOTAM STYLING */
+        .notam-input-area { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        textarea { width: 100%; height: 100px; border: 2px solid #eee; border-radius: 10px; padding: 15px; font-family: monospace; transition: 0.3s; }
+        textarea:focus { border-color: var(--olive); outline: none; }
+
+        .creative-card { 
+            background: white; 
+            margin-top: 20px; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            display: flex; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08); 
+            border-left: 10px solid var(--navy);
+            animation: slideIn 0.5s ease;
+        }
+        .card-critical { border-left-color: var(--red); }
+        .card-caution { border-left-color: var(--gold); }
+
+        .card-icon { width: 80px; display: flex; align-items: center; justify-content: center; background: #f9f9f9; font-size: 2rem; color: #ccc; }
+        .card-body { padding: 20px; flex-grow: 1; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .notam-id-tag { background: var(--navy); color: white; padding: 4px 12px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; }
+        
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; }
+        .status-na { background: #ffebee; color: var(--red); }
+        .status-wip { background: #fff8e1; color: var(--gold); }
+
+        .interpreted-text { font-size: 1.1rem; font-weight: 700; margin-top: 10px; color: #333; }
+        .abbr { color: var(--olive); border-bottom: 2px solid var(--olive); cursor: help; }
+
+        /* EMBEDS */
+        .live-feeds { display: flex; flex-direction: column; gap: 20px; }
+        .feed-box { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 1px solid #ddd; }
+        .feed-label { background: var(--navy); color: white; padding: 10px 20px; font-weight: bold; font-size: 0.9rem; display: flex; justify-content: space-between; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <h1 style="margin:0;">CAA OMAN | DIGITAL OPS</h1>
+        <small>Strategy 2040 - Salalah International (OOSA)</small>
+    </div>
+    <div class="utc-clock" id="clock">00:00:00 UTC</div>
+</header>
+
+<div class="dashboard-container">
+    
+    <!-- LEFT: NOTAM INTERPRETER -->
+    <section>
+        <div class="notam-input-area">
+            <h3 style="margin-top:0;"><i class="fa-solid fa-microchip"></i> Intelligent NOTAM Parser</h3>
+            <p style="font-size: 0.9rem; color: #666;">Paste the FAA NOTAM results for OOSA here. The AI will visualize the data creatively.</p>
+            <textarea id="notamInput" placeholder="Paste NOTAM text..." oninput="parseCreativeNOTAM()"></textarea>
+            <div style="margin-top:10px;">
+                <a href="https://notams.aim.faa.gov/notamSearch/nsapp.html#/results?locationDesignators=OOSA" target="_blank" style="color: var(--olive); text-decoration: none; font-weight: bold;">
+                    <i class="fa-solid fa-external-link"></i> Get Live Data from FAA
+                </a>
+            </div>
+        </div>
+
+        <div id="creativeOutput">
+            <!-- Cards will be generated here -->
+        </div>
+    </section>
+
+    <!-- RIGHT: LIVE FEED PANEL -->
+    <section class="live-feeds">
+        
+        <!-- Flightradar24 (Limited simple version for free embeds) -->
+        <div class="feed-box">
+            <div class="feed-label"><span>LIVE TRAFFIC</span><i class="fa-solid fa-plane"></i></div>
+            <iframe src="https://www.flightradar24.com/simple_index.php?lat=17.09&lon=54.09&z=10" width="100%" height="300" frameborder="0"></iframe>
+        </div>
+
+        <!-- Windy Embed (Fixed Official Embed Link) -->
+        <div class="feed-box">
+            <div class="feed-label"><span>LIVE WEATHER RADAR</span><i class="fa-solid fa-cloud-sun"></i></div>
+            <iframe width="100%" height="300" src="https://embed.windy.com/embed2.html?lat=17.09&lon=54.09&zoom=8&level=surface&overlay=radar&product=radar&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&detailLat=17.09&detailLon=54.09&metricWind=default&metricTemp=default&radarRange=-1" frameborder="0"></iframe>
+        </div>
+
+        <div style="text-align:center; font-size: 0.7rem; color: #999;">
+            INTERSECTING DATA ERA | OMAN 2040
+        </div>
+    </section>
+</div>
+
+<script>
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('clock').innerText = 
+            now.getUTCHours().toString().padStart(2, '0') + ":" + 
+            now.getUTCMinutes().toString().padStart(2, '0') + ":" + 
+            now.getUTCSeconds().toString().padStart(2, '0');
+    }
+    setInterval(updateTime, 1000); updateTime();
+
+    const dict = {
+        "WIP": "Work In Progress",
+        "TWY": "Taxiway",
+        "RWY": "Runway",
+        "LGT": "Lighting",
+        "SID": "Departure Route",
+        "NA": "NOT AUTHORIZED",
+        "ILS": "Instrument Landing System"
+    };
+
+    function parseCreativeNOTAM() {
+        const input = document.getElementById('notamInput').value;
+        const output = document.getElementById('creativeOutput');
+        output.innerHTML = "";
+
+        const chunks = input.split(/(?=[A-Z]\d{4}\/\d{2})/);
+
+        chunks.forEach(item => {
+            if(item.trim().length < 20) return;
+
+            const id = item.match(/([A-Z]\d{4}\/\d{2})/) ? item.match(/([A-Z]\d{4}\/\d{2})/)[1] : "NOTAM";
+            let rawBody = item.split('E)')[1] ? item.split('E)')[1].split(/[A-Z]\)/)[0].trim() : item;
+            
+            // Intelligence Logic
+            let isCritical = rawBody.includes("NOT AUTHORIZED") || rawBody.includes("NA");
+            let isCaution = rawBody.includes("WIP") || rawBody.includes("CAUTION");
+            
+            let cardClass = isCritical ? "card-critical" : (isCaution ? "card-caution" : "");
+            let icon = isCritical ? "fa-circle-xmark" : (isCaution ? "fa-triangle-exclamation" : "fa-circle-info");
+            let iconColor = isCritical ? "var(--red)" : (isCaution ? "var(--gold)" : "var(--navy)");
+
+            // Replace Text for Creative Tooltips
+            let interpreted = rawBody;
+            Object.keys(dict).forEach(key => {
+                const regex = new RegExp(`\\b${key}\\b`, 'g');
+                interpreted = interpreted.replace(regex, `<span class="abbr" title="${dict[key]}">${key}</span>`);
+            });
+
+            const card = document.createElement('div');
+            card.className = `creative-card ${cardClass}`;
+            card.innerHTML = `
+                <div class="card-icon" style="color:${iconColor}"><i class="fa-solid ${icon}"></i></div>
+                <div class="card-body">
+                    <div class="card-header">
+                        <span class="notam-id-tag">${id}</span>
+                        ${isCritical ? '<span class="status-badge status-na">Safety Critical</span>' : ''}
+                        ${isCaution ? '<span class="status-badge status-wip">Operational Caution</span>' : ''}
+                    </div>
+                    <div style="font-size: 0.75rem; color: #888; font-family: monospace;">RAW: ${rawBody.substring(0, 60)}...</div>
+                    <div class="interpreted-text">${interpreted}</div>
+                </div>
+            `;
+            output.appendChild(card);
+        });
+    }
+</script>
+
+</body>
+</html>
